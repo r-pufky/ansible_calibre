@@ -1,0 +1,47 @@
+---
+###############################################################################
+# Default Calibre-Web Package Dependencies
+###############################################################################
+# Default required packages for Calibre-Web install.
+
+calibre_web_default_packages:
+  - 'imagemagick'
+  - 'unrar'
+  - 'python3'
+  - 'python3-pip'
+  - 'python3-virtualenv'  # Added for updated virtualenv/ansible pip.
+  - 'sqlite3'
+
+# Optional LDAP support.
+calibre_web_default_optional_feature_ldap:
+  - 'libldap2-dev'
+  - 'libsasl2-dev'
+
+###############################################################################
+# Default Calibre-Web Serving Directory
+###############################################################################
+
+# The installed version will be symlinked to this directory to be served.
+calibre_web_default_install_dir: '/var/lib'
+
+# Unrar location.
+calibre_web_binary_unrar: '/usr/bin/unrar'
+
+###############################################################################
+# Default Calibre-Web app.db queries
+###############################################################################
+# queries used to modify app.db for setup.
+
+calibre_web_default_root_update:     'update \"user\" set'
+calibre_web_default_settings_update: 'update \"settings\" set'
+calibre_web_default_oauth_replace:   'insert or replace into \"oauthProvider\" (id, provider_name, oauth_client_id, oauth_client_secret, active) values'
+
+###############################################################################
+# Calibre-Web Configuration Version
+###############################################################################
+# Base version used for initial role creation.
+#
+# To create template database use the same version from any system on a fresh
+# installation and immediately exit.
+
+calibre_web_base_version: '0.6.16'

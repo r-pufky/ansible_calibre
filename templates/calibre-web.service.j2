@@ -1,0 +1,18 @@
+# https://github.com/janeczku/calibre-web/wiki/Setup-Service-on-Linux#start-calibre-web-as-service-under-linux-with-systemd
+# https://github.com/janeczku/calibre-web/wiki/Command-Line-Interface
+
+[Unit]
+Description=Calibre-Web
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User={{ calibre_user }}
+Group={{ calibre_group }}
+Environment="CALIBRE_DBPATH={{ calibre_library }}"
+WorkingDirectory={{ _calibre_web_work_dir }}
+ExecStart="{{ _calibre_web_dir }}/.venv/bin/python3" "{{ _calibre_web_work_dir }}/cps.py"
+
+[Install]
+WantedBy=multi-user.target

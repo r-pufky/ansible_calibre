@@ -1,0 +1,61 @@
+---
+###############################################################################
+# Calibre-Web Core
+###############################################################################
+# Calibre-Web is a web app providing a clean interface for browsing, reading
+# and downloading eBooks using an existing Calibre database.
+#
+# Caculate core calibre-web variables for installation and upgrade.
+#
+# Generates:
+#   _calibre_web_target: str calibre-web latest version (X.X.X).
+#   _calibre_web_dir: str unversioned install directory (full path).
+#   _calibre_web_work_dir: str unversioned web source/work dir (full path).
+#   _calibre_web_target_dir: str versioned install directory (full path).
+#   _calibre_web_url: str URL to download calibre-web release.
+#   _calibre_web_archive: str local tarball file with version (full path).
+#   _calibre_web_venv: str versioned python virtual environment location.
+#   _calibre_web_install_dir: str versioned install directory (full path).
+#   _calibre_web_app_db_source: str source location of calibre-web app.db.
+#   _calibre_web_sqlite3: str sqlite3 command to app.db.
+#   _calibre_web_features: list of dicts containing optional features.
+#
+# Reference:
+# * https://github.com/janeczku/calibre-web
+
+- name: 'web core | get calibre-web release metadata'
+  ansible.builtin.uri:
+    url: 'https://api.github.com/repos/janeczku/calibre-web/releases/latest'
+    return_content: true
+  register: _calibre_web_remote_metadata
+
+- name: 'web core | generate target versions'
+  ansible.builtin.set_fact:
+    _calibre_web_target:   '{{ _calibre_web_remote_metadata.json.tag_name }}'
+    _calibre_web_dir:      '{{ calibre_web_default_install_dir }}/calibre_web'
+    _calibre_web_work_dir: '{{ calibre_web_default_install_dir }}/calibre_web/web'
+
+- name: 'web core | generate versioned targets'
+  ansible.builtin.set_fact:
+    _calibre_web_target_dir: '{{ _calibre_web_dir }}-{{ _calibre_web_target }}'
+
+- name: 'web core | generate locations'
+  ansible.builtin.set_fact:
+    _calibre_web_url:           'https://github.com/janeczku/calibre-web/releases/download/{{ _calibre_web_target }}/calibre-web-{{ _calibre_web_target }}.tar.gz'
+    _calibre_web_archive:       '/tmp/calibre_web-{{ _calibre_web_target }}.tar.gz'
+    _calibre_web_venv:          '{{ _calibre_web_target_dir }}/.venv'
+    _calibre_web_install_dir:   '{{ _calibre_web_target_dir }}/web'
+    _calibre_web_app_db_source: '{% if calibre_web_app_database|length > 0 %}{{ calibre_web_app_database }}{% else %}calibre-web-app-empty.db{% endif %}'
+    _calibre_web_sqlite3:       '/usr/bin/sqlite3 {{ calibre_library }}/app.db'
+
+- name: 'web virtualenv | generate optional feature flags'
+  ansible.builtin.set_fact:
+    _calibre_web_features:
+      - {header: 'GDrive',    enabled: '{{ calibre_optional_gdrive }}'}
+      - {header: 'Gmail',     enabled: '{{ calibre_optional_gmail }}'}
+      - {header: 'goodreads', enabled: '{{ calibre_optional_goodreads }}'}
+      - {header: 'ldap',      enabled: '{{ calibre_optional_ldap }}'}
+      - {header: 'oauth',     enabled: '{{ calibre_optional_oauth }}'}
+      - {header: 'metadata',  enabled: '{{ calibre_optional_metadata }}'}
+      - {header: 'Comics',    enabled: '{{ calibre_optional_comics }}'}
+      - {header: 'Kobo',      enabled: '{{ calibre_optional_kobo }}'}

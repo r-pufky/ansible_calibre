@@ -1,0 +1,109 @@
+---
+###############################################################################
+# Default Calibre Package Dependencies
+###############################################################################
+# SECURITY WARNING
+# Calibre is poorly written; requiring blindly executing remote binaries,
+# storing passwords unencrypted, re-inventing install methods (including
+# certificate validation), etc. in python. Intead of using platform tools to
+# make installation, configuration, updates, and maintenance easy.
+#
+# "Because when all you have is a hammer, everything is a nail."
+#
+# It is literal tire-fire of bad design and security decisions; with a sole
+# developer that is arrogant and argumentative at best, and woefully ignorant
+# at their worst. **ANY** Calibre binary should be run in a completely
+# **UNTRUSTED** environment, and assume ANY user password saved in the core
+# Calibre binary or related core Calibre databases as compromised.
+#
+# Only install calibre to provide the tools required for calibre-web to
+# operate. It is unfortunate that there is no better software out right now.
+#
+# Examples of bad developer practices:
+# 1. Security/Encryption/Hashing Ignorance.
+#
+#    Author:
+#      The passwords have to be stored in plaintext otherwise you lock-in a
+#      single auth method.
+#
+#    https://www.mobileread.com/forums/showthread.php?t=296555
+#
+# 2. Using Python where CLI would do (and what is asked for).
+#
+#    Author:
+#      import subprocess
+#
+#      users = tuple(filter(None, open('users.txt').read().splitlines()))
+#      if users:
+#          subprocess.check_call('systemctl stop calibre-server'.split())
+#          for user in users:
+#               username, password = user.split()
+#               subprocess.check_call(['calibre-server', '--manage-users', '--', 'add', username, password])
+#          subprocess.check_call('systemctl start calibre-server')
+#
+#    Reality:
+#      calibre-server --manage-users -- add username password
+#
+#    https://www.mobileread.com/forums/showthread.php?t=343329
+#
+# 3. Custom mount helper binary as root, instead of udisks (security).
+#
+#    Actively exploited, with multiple releases to fix the problem -- never
+#    resolved. Users suggested to use non-privleged udisks but were
+#    dismissed with arrogant responses. See bug.
+#
+#    https://bugs.launchpad.net/calibre/+bug/885027
+#
+# 4. Maintain Python2 instead of migrating to Python3.
+#
+#    Author:
+#      Not eager to port calibre over the Python3, will "maintain" Python2
+#      instead.
+#
+#    Reality:
+#      Anyone who says they will single-handly maintain Python2 after it is
+#      deprecated for their one software project needs to re-evaluate their
+#      life choices.
+#
+#    https://old.reddit.com/r/ebooks/comments/ameddo/calibre_alternative/
+
+# Default required packages for Calibre binary install.
+calibre_binary_default_packages:
+  - 'xdg-utils'
+  - 'wget'
+  - 'xz-utils'
+  - 'gnupg2'
+  - 'libnss3'  # required for conversion to pdf.
+
+###############################################################################
+# Default Calibre Serving Directory
+###############################################################################
+
+# The installed version will be symlinked to this directory to be served.
+calibre_binary_default_install_dir: '/var/lib'
+
+# Ebook conversion location.
+calibre_binary_ebook: '/usr/bin/ebook-convert'
+
+###############################################################################
+# Calibre GPG
+###############################################################################
+# GPG keys used to sign calibre releases.
+#
+# Reference:
+# * https://calibre-ebook.com/signatures/
+# * https://download.calibre-ebook.com/5.37.0/
+
+calibre_binary_gpg_email:   'Kovid Goyal (New longer key) <kovid@kovidgoyal.net>'
+calibre_binary_gpg_key_url: 'https://calibre-ebook.com/signatures/kovid.gpg'
+calibre_binary_gpg_key:     '06BC317B515ACE7C'
+
+###############################################################################
+# Calibre Configuration Version
+###############################################################################
+# Base version used for initial role creation.
+#
+# To create template database use the same version from any system on a fresh
+# installation and immediately exit.
+
+calibre_binary_base_version: '5.37.0'

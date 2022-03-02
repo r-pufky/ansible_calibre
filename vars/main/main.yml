@@ -1,0 +1,31 @@
+---
+###############################################################################
+# Default Calibre User Group
+###############################################################################
+# Default group settings if calibre user is force created.
+
+calibre_default_group:
+  name: 'calibre'
+  gid:  940
+
+###############################################################################
+# Default Calibre User Account
+###############################################################################
+# Default user settings if calibre user is force created.
+#
+# Logins are disabled.
+
+calibre_default_user:
+  name:            'calibre'
+  group:           'calibre'
+  uid:             940
+  shell:           '/usr/sbin/nologin'
+  home:            '/etc/calibre'
+  comment:         'calibre'
+  create_home:     false
+  password:        '!'
+  password_lock:   true
+  update_password: 'always'
+  expires:         -1
+  system:          true
+  state:           'present'

@@ -1,0 +1,45 @@
+---
+###############################################################################
+# Calibre-Web Python Virtual Environment
+###############################################################################
+# Configure Python Virtual Environment. This is created in the versioned
+# install location so state is keep between versions. Assumes archive is
+# already unpacked and cleaned.
+#
+# Optional feature requirements (in optional-requirements.txt) have a simple
+# '# HEADER' header and a vertical space or EOF to denote end of section:
+#
+#   # Comics
+#   natsort>=2.2.0,<8.1.0
+#   comicapi>=2.2.0,<2.3.0
+#
+#   # Kobo integration
+#   jsonschema>=3.2.0,<4.5.0
+#
+# Args:
+#   header: str header (no '# ') for option start.
+#   enabled: bool true if feature is enabled.
+#   _calibre_web_venv: str versioned python virtual environment location.
+#   _calibre_web_install_dir: str versioned install location.
+#
+# Reference:
+# * https://github.com/janeczku/calibre-web/blob/master/optional-requirements.txt
+
+- name: 'web virtualenv | parse optional requirements ({{ header|lower }})'  # noqa command-instead-of-module requirements change on updates.
+  ansible.builtin.shell: "sed '/^# {{ header }}.*$/,/^$/{//!b};d' {{ _calibre_web_install_dir }}/optional-requirements.txt"
+  register: _calibre_web_venv_optional_packages
+  when: enabled
+
+- name: 'web virtualenv | setup virtual environment ({{ header|lower }})'
+  ansible.builtin.pip:
+    virtualenv:         '{{ _calibre_web_venv }}'
+    virtualenv_command: 'virtualenv'
+    virtualenv_python:  'python3'
+    extra_args: '--upgrade'
+    name: '{{ _calibre_web_venv_optional_packages.stdout_lines }}'
+  become: true
+  become_user: '{{ calibre_user }}'
+  # Reference: https://github.com/ansible/ansible/issues/16048#issuecomment-229012509
+  vars:
+    ansible_ssh_pipelining: true
+  when: enabled

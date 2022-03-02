@@ -1,0 +1,18 @@
+---
+###############################################################################
+# Kepubify Configuration
+###############################################################################
+# Configure kepubify.
+#
+# Args:
+#   _kepubify_install_dir: str versioned install directory (full path).
+
+- name: 'kepubify config | link versioned kepubify'
+  ansible.builtin.file:
+    src:   '{{ _kepubify_install_dir }}'
+    dest:  '{{ kepubify_binary_default_install_dir }}/kepubify'
+    owner: 'root'
+    group: 'root'
+    mode:  0755
+    state: 'link'
+  changed_when: false

@@ -1,0 +1,126 @@
+---
+###############################################################################
+# Calibre-Web DB Configuration
+###############################################################################
+# Database settings are applied regardless of whether it is new or not. Changes
+# only affect user-configurable settings and the admin (app.db.user.ID=1) user.
+#
+# Admin password is generated using the same method call from calibre-web app.
+#
+# Args:
+#   _calibre_web_sqlite3: str sqlite3 command to app.db.
+#
+# Reference:
+# * https://github.com/janeczku/calibre-web/blob/master/cps/helper.py#L613
+# * https://github.com/janeczku/calibre-web/blob/master/cps/constants.py#L47
+
+- name: 'web db | generate settings'
+  ansible.builtin.set_fact:
+    _calibre_web_server_settings_sql: |
+      {{ _calibre_web_sqlite3 }} "{{ calibre_web_default_settings_update }}
+      mail_server=\"{{ calibre_mail_server }}\",
+      mail_port={{ calibre_mail_port|int }},
+      mail_use_ssl={{ calibre_mail_use_ssl|int }},
+      mail_login=\"{{ calibre_mail_login }}\",
+      mail_password=\"{{ calibre_mail_password }}\",
+      mail_from=\"{{ calibre_mail_from }}\",
+      mail_size={{ calibre_mail_size|int }},
+      mail_server_type={{ calibre_mail_server_type|int }},
+      mail_gmail_token=\"{{ calibre_mail_gmail_token }}\",
+      config_calibre_dir=\"{{ calibre_library }}\",
+      config_port={{ calibre_server_port }},
+      config_certfile=\"{{ calibre_server_ssl_cert }}\",
+      config_keyfile=\"{{ calibre_server_ssl_key }}\",
+      config_updatechannel={{ calibre_server_update_channel|int }},
+      config_trustedhosts=\"{{ calibre_server_trusted_hosts|join(",") }}\",
+      config_log_level={{ calibre_server_log_level|int }},
+      config_logfile=\"{{ calibre_server_log_location }}\",
+      config_access_log={{ calibre_server_access_log_enable|int }},
+      config_access_logfile=\"{{ calibre_server_access_log_location }}\",
+      config_unicode_filename={{ calibre_feature_convert_characters|int }},
+      config_uploading={{ calibre_feature_uploads|int }},
+      config_upload_formats=\"{{ calibre_feature_formats|join(",") }}\",
+      config_anonbrowse={{ calibre_feature_anonymous_browsing|int }},
+      config_public_reg={{ calibre_feature_public_registration|int }},
+      config_remote_login={{ calibre_feature_magic_link|int }},
+      config_kobo_sync={{ calibre_feature_kobo_sync|int }},
+      config_kobo_proxy={{ calibre_feature_kobo_proxy|int }},
+      config_external_port={{ calibre_feature_kobo_external_port|int }},
+      config_ldap_provider_url=\"{{ calibre_feature_ldap_provider_url }}\",
+      config_ldap_port={{ calibre_feature_ldap_port|int }},
+      config_ldap_authentication={{ calibre_feature_ldap_authentication|int }},
+      config_ldap_serv_username=\"{{ calibre_feature_ldap_serv_username }}\",
+      config_ldap_serv_password=\"{{ calibre_feature_ldap_serv_password }}\",
+      config_ldap_encryption={{ calibre_feature_ldap_encryption|int }},
+      config_ldap_cacert_path=\"{{ calibre_feature_ldap_cacert_path }}\",
+      config_ldap_cert_path=\"{{ calibre_feature_ldap_cert_path }}\",
+      config_ldap_key_path=\"{{ calibre_feature_ldap_key_path }}\",
+      config_ldap_dn=\"{{ calibre_feature_ldap_dn }}\",
+      config_ldap_user_object=\"{{ calibre_feature_ldap_user_object }}\",
+      config_ldap_member_user_object=\"{{ calibre_feature_ldap_member_user_object }}\",
+      config_ldap_openldap={{ calibre_feature_ldap_openldap|int }},
+      config_ldap_group_object_filter=\"{{ calibre_feature_ldap_group_object_filter }}\",
+      config_ldap_group_members_field=\"{{ calibre_feature_ldap_group_members_field }}\",
+      config_ldap_group_name=\"{{ calibre_feature_ldap_group_name }}\",
+      config_use_goodreads={{ calibre_feature_goodreads|int }},
+      config_goodreads_api_key=\"{{ calibre_feature_goodreads_api_key }}\",
+      config_goodreads_api_secret=\"{{ calibre_feature_goodreads_api_secret }}\",
+      config_rarfile_location=\"{{ calibre_web_binary_unrar }}\",
+      config_allow_reverse_proxy_header_login={{ calibre_feature_reverse_proxy_auth|int }},
+      config_reverse_proxy_login_header_name=\"{{ calibre_feature_reverse_proxy_header_name }}\",
+      config_converterpath=\"{{ calibre_binary_ebook }}\",
+      config_calibre=\"{{ calibre_external_converter_settings }}\",
+      config_kepubifypath=\"{{ kepubify_binary }}\",
+      config_calibre_web_title=\"{{ calibre_view_title }}\",
+      config_books_per_page={{ calibre_view_books_per_page|int }},
+      config_random_books={{ calibre_view_random_books|int }},
+      config_authors_max={{ calibre_view_authors }},
+      config_theme={{ calibre_view_theme|int }},
+      config_columns_to_ignore=\"{{ calibre_view_ignore_columns }}\",
+      config_title_regex=\"{{ calibre_view_title_sorting }}\",
+      config_default_role={{ calibre_new_user_default_roles|int }},
+      config_default_show={{ calibre_new_user_default_visibility|int }},
+      config_default_locale=\"{{ calibre_new_user_default_locale }}\",
+      config_default_language=\"{{ calibre_new_user_default_book_languages }}\"
+      WHERE id=1"
+
+- name: 'web db | generate admin user password hash'
+  ansible.builtin.shell: |
+    '{{ _calibre_web_venv }}/bin/python3' -c "import werkzeug.security; print(werkzeug.security.generate_password_hash('{{ calibre_root_password }}'))"
+  register: _calibre_root_password_hash
+  changed_when: false
+  become: true
+  no_log: true  # admin password
+
+- name: 'web db | set admin user preferences'
+  ansible.builtin.command: '{{ _calibre_web_sqlite3 }} "{{ calibre_web_default_root_update }} name=\"{{ calibre_root_name }}\", email=\"{{ calibre_root_email }}\", password=\"{{ _calibre_root_password_hash.stdout }}\" where id=1"'
+  changed_when: false
+  become: true
+  notify: 'restart calibre-web'
+  no_log: true  # admin password hash
+
+- name: 'web db | set server settings'
+  ansible.builtin.command: '{{ _calibre_web_server_settings_sql }}'
+  changed_when: false
+  become: true
+  notify: 'restart calibre-web'
+  no_log: true  # email password
+
+# Currently only github(id=1), google(id=2) are supported.
+- name: 'web db | set github oauth tokens'
+  ansible.builtin.command: '{{ _calibre_web_sqlite3 }} "{{ calibre_web_default_oauth_replace }} (1, \"github\", \"{{ calibre_feature_github_oauth.id }}\", \"{{ calibre_feature_github_oauth.secret }}\", {{ calibre_feature_github_oauth.active|int }})"'
+  become: true
+  notify: 'restart calibre-web'
+  no_log: true  # oauth secrets
+  when: |
+    calibre_feature_github_oauth|length > 0 and
+    calibre_feature_login_type == 2
+
+- name: 'web db | set google oauth tokens'
+  ansible.builtin.command: '{{ _calibre_web_sqlite3 }} "{{ calibre_web_default_oauth_replace }} (2, \"google\", \"{{ calibre_feature_google_oauth.id }}\", \"{{ calibre_feature_google_oauth.secret }}\", {{ calibre_feature_google_oauth.active|int }})"'
+  become: true
+  notify: 'restart calibre-web'
+  no_log: true  # oauth secrets
+  when: |
+    calibre_feature_google_oauth|length > 0 and
+    calibre_feature_login_type == 2

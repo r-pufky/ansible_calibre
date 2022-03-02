@@ -1,0 +1,32 @@
+---
+###############################################################################
+# Calibre Public GPG Keys
+###############################################################################
+# The GPG public key is posted on the calibre website; downloading from
+# keyservers fail because it does not exist or isn't verified (which fails
+# import directly). Download public key directly from the website and use that.
+#
+# Reference:
+# * https://calibre-ebook.com/signatures/kovid.gpg
+
+- name: 'binary gpg | check calibre public key imported'
+  ansible.builtin.command: 'gpg --list-keys 0x{{ calibre_binary_gpg_key }}'
+  register: _calibre_gpg_key_status
+  changed_when: false
+  failed_when: _calibre_gpg_key_status.rc not in (0, 2)
+
+- name: 'binary gpg | download calibre public key'
+  ansible.builtin.get_url:
+    url:  '{{ calibre_binary_gpg_key_url }}'
+    dest: '/tmp/calibre.pub.gpg'
+  register: _calibre_key
+  until: _calibre_key is succeeded
+  retries: 5
+  delay: 2
+  when: _calibre_gpg_key_status.rc != 0
+
+- name: 'binary gpg | import calibre public key'
+  ansible.builtin.command: 'gpg --import /tmp/calibre.pub.gpg'
+  register: _calibre_import_key
+  changed_when: '"imported: 1" in _calibre_import_key.stderr'
+  when: _calibre_gpg_key_status.rc != 0

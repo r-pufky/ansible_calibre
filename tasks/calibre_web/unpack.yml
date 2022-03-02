@@ -1,0 +1,66 @@
+---
+###############################################################################
+# Calibre-Web Unpack Packages
+###############################################################################
+# Calibre-Web may be installed directly from pip (python3 -m pip install
+# calibreweb); but does not allow for fine grained control of installation
+# or default locations easily. Use Github release to mange and lockdown
+# install location and version.
+#
+# Extract Calibre-Web archive to versioned location.
+#
+# Args:
+#   _calibre_install_dir: str versioned install directory (full path).
+#   _calibre_web_install_dir: str versioned install directory (full path).
+#   _calibre_web_archive: str local tarball file with version (full path).
+
+- name: 'web unpack | create calibre-web directory'
+  ansible.builtin.file:
+    path:  '{{ _calibre_web_install_dir }}'
+    owner: '{{ calibre_user }}'
+    group: '{{ calibre_group }}'
+    mode:  0750
+    state: 'directory'
+
+- name: 'web unpack | unpack calibre-web archive'
+  ansible.builtin.unarchive:
+    src:     '{{ _calibre_web_archive }}'
+    remote_src: true
+    dest:    '{{ _calibre_web_install_dir }}'
+    creates: '{{ _calibre_web_install_dir }}/cps'
+    owner:   '{{ calibre_user }}'
+    group:   '{{ calibre_group }}'
+    mode:    'o-rwx'
+    # Remove the leading 'calibre-web-X.X.X/' directory in the archive
+    extra_opts: '--strip-components=1'
+  register: _calibre_web_unpacked
+  when: not _calibre_web_install_stat.stat.exists
+
+- name: 'web unpack | cleanup unused calibre-web archive files'
+  ansible.builtin.file:
+    path:  '{{ item }}'
+    state: 'absent'
+  loop:
+    - '{{ _calibre_web_install_dir }}/CONTRIBUTING.md'
+    - '{{ _calibre_web_install_dir }}/.editorconfig'
+    - '{{ _calibre_web_install_dir }}/.eslintrc'
+    - '{{ _calibre_web_install_dir }}/.gitattributes'
+    - '{{ _calibre_web_install_dir }}/.github'
+    - '{{ _calibre_web_install_dir }}/.gitignore'
+    - '{{ _calibre_web_install_dir }}/LICENSE'
+    - '{{ _calibre_web_install_dir }}/MANIFEST.in'
+    - '{{ _calibre_web_install_dir }}/README.md'
+    - '{{ _calibre_web_install_dir }}/SECURITY.md'
+  when: not _calibre_web_install_stat.stat.exists
+
+# Removing executable permissions inside virtual environments will break them;
+# permissions are set in virtual environment setup.
+- name: 'web unpack | set install permissions'  # noqa no-handler conditional
+  ansible.builtin.shell: |
+    chown -R {{ calibre_user }}:{{ calibre_group }} '{{ _calibre_web_install_dir }}' &&
+    find '{{ _calibre_web_install_dir }}' -type d ! -path "*.venv*" -exec chmod 0750 {} \; &&
+    find '{{ _calibre_web_install_dir }}' -type f ! -path "*.venv*" -exec chmod 0640 {} \;
+  args:
+    warn: false
+  changed_when: false
+  when: _calibre_web_unpacked.changed

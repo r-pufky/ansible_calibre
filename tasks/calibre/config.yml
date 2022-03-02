@@ -1,0 +1,48 @@
+---
+###############################################################################
+# Calibre Configuration
+###############################################################################
+# Configure Calibre.
+#
+# Args:
+#   _calibre_install_dir: str versioned install directory (full path).
+#   _calibre_metadata_db_source: str source location of calibre metadata.db.
+
+- name: 'binary config | set library permissions'
+  ansible.builtin.file:
+    path:  '{{ calibre_library }}'
+    owner: '{{ calibre_user }}'
+    group: '{{ calibre_group }}'
+    mode:  0750
+    state: 'directory'
+
+- name: 'binary config | link calibre versioned directory'
+  ansible.builtin.file:
+    src:   '{{ _calibre_install_dir }}'
+    dest:  '{{ calibre_binary_default_install_dir }}/calibre'
+    owner: 'root'
+    group: '{{ calibre_group }}'
+    mode:  0750
+    state: 'link'
+  changed_when: false
+
+# Use shell to redirect output as no X environment produces warnings that can
+# be alarmingly inaccurate.
+- name: 'binary config | run calibre postinstall'
+  ansible.builtin.shell: '{{ calibre_binary_default_install_dir }}/calibre/calibre_postinstall >/dev/null 2>&1'
+  changed_when: false
+  become: true
+
+- name: 'binary config | check for calibre metadata.db in library'
+  ansible.builtin.stat:
+    path: '{{ calibre_library }}/metadata.db'
+  register: _calibre_metadata_install_stat
+
+- name: 'binary config | set initial calibre metadata.db'
+  ansible.builtin.copy:
+    src:   '{{ _calibre_metadata_db_source }}'
+    dest:  '{{ calibre_library }}/metadata.db'
+    owner: '{{ calibre_user }}'
+    group: '{{ calibre_group }}'
+    mode:  '0600'
+  when: not _calibre_metadata_install_stat.stat.exists

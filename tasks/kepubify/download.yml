@@ -1,0 +1,32 @@
+---
+###############################################################################
+# Kepubify Github Download
+###############################################################################
+# Kepubify is the fastest tool for converting EPUBs to Kobo's enhanced KEPUB
+# format for use on Kobo eReaders. Kepubify has no gpg signatures.
+#
+# Generates:
+#   _kepubify_install_stat: stat object for versioned kepubify location.
+#
+# Args:
+#   _kepubify_target: str kepubify latest version (vX.X.X).
+#   _kepubify_url: str URL to download kepubify release.
+#   _kepubify_install_dir: str versioned install directory (full path).
+#
+# Reference:
+# * https://github.com/pgaskin/kepubify/releases
+
+- name: 'kepubify download | check local versioned kepubify directory'
+  ansible.builtin.stat:
+    path: '{{ _kepubify_install_dir }}'
+  register: _kepubify_install_stat
+
+- name: 'kepubify download | download kepubify'
+  ansible.builtin.get_url:
+    url:  '{{ _kepubify_url }}'
+    dest: '{{ _kepubify_install_dir }}'
+  register: _kepubify_download
+  until: _kepubify_download is succeeded
+  retries: 5
+  delay: 2
+  when: not _kepubify_install_stat.stat.exists

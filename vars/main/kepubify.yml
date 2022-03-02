@@ -1,0 +1,29 @@
+---
+###############################################################################
+# Default Kepubify Install Directory
+###############################################################################
+
+# Kepubify will be installed to this directory. The latest version will always
+# be installed.
+kepubify_binary_default_install_dir: '/usr/local/bin'
+
+# kepubify location.
+kepubify_binary: '/usr/local/bin/kepubify'
+
+###############################################################################
+# Kepubify GPG
+###############################################################################
+# GPG keys used to sign kepubify releases.
+#
+# Reference:
+# * https://github.com/pgaskin
+
+kepubify_gpg_email: 'Patrick Gaskin <patrick@pgaskin.net>'
+kepubify_gpg_key:   'A2FD79F68A2AB707'
+
+###############################################################################
+# Kepubify Configuration Version
+###############################################################################
+# Base version used for initial role creation.
+
+kepubify_base_version: '4.0.3'

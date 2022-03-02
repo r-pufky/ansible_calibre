@@ -1,0 +1,14 @@
+---
+###############################################################################
+# Calibre Handlers
+###############################################################################
+
+- name: 'reload systemd'
+  ansible.builtin.systemd:
+    daemon-reload: true
+
+- name: 'restart calibre-web'
+  ansible.builtin.systemd:
+    name:    'calibre-web'
+    state:   'restarted'
+    enabled: true

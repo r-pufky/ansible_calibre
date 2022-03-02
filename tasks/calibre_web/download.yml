@@ -1,0 +1,33 @@
+---
+###############################################################################
+# Calibre-Web Github Download
+###############################################################################
+# Calibre-Web is a web app providing a clean interface for browsing, reading
+# and downloading eBooks using an existing Calibre database. Calibre-Web has no
+# gpg signatures.
+#
+# Generates:
+#   _calibre_web_install_stat: stat object for versioned calibre-web location.
+#
+# Args:
+#   _calibre_web_target: str calibre-web latest version (X.X.X).
+#   _calibre_web_url: str URL to download calibre-web release.
+#   _calibre_web_install_dir: str versioned install directory (full path).
+#
+# Reference:
+# * https://github.com/janeczku/calibre-web/releases
+
+- name: 'web download | check local versioned calibre-web directory'
+  ansible.builtin.stat:
+    path: '{{ _calibre_web_install_dir }}'
+  register: _calibre_web_install_stat
+
+- name: 'web download | download calibre-web'
+  ansible.builtin.get_url:
+    url:  '{{ _calibre_web_url }}'
+    dest: '{{ _calibre_web_archive }}'
+  register: _calibre_web_download
+  until: _calibre_web_download is succeeded
+  retries: 5
+  delay: 2
+  when: not _calibre_web_install_stat.stat.exists

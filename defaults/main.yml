@@ -1,0 +1,422 @@
+---
+###############################################################################
+# Calibre Role Configuration
+###############################################################################
+# Calibre-Web hosts ebooks from Calibre via a webapp. Calibre is used only for
+# the underlying metadata and conversion tooling. Kepubify is also installed as
+# additional conversion utility for Kobo support.
+#
+# This should be run in a completely UNTRUSTED environment. See
+# vars/main/calibre.yml for more details.
+#
+# Reference:
+# * https://calibre-ebook.com
+# * https://github.com/pgaskin/kepubify/releases
+# * https://github.com/janeczku/calibre-web
+# * https://github.com/janeczku/calibre-web/wiki/Dependencies-in-Calibre-Web-Linux-Windows
+
+# User that calibre/calibre-web will run under. Assumes externally managed.
+calibre_user:  'calibre'
+calibre_group: 'calibre'
+
+# Create 'calibre' user if not detected? See: vars/main.yml.
+calibre_create_user: false
+
+# Calibre version. Kepubify and calibre-web will always use the latest release.
+# See versions: https://download.calibre-ebook.com/. Default: '5.37.0'.
+calibre_version: '5.37.0'
+
+# Remove old calibre/calibre-web/kepubify installs on upgrade success?
+calibre_delete_old_versions: true
+
+# Generic architecture for platform: x86_32, x86_64
+calibre_arch_generic: 'x86_64'
+
+# Enable gdrive backend data support? Default: false.
+calibre_optional_gdrive: false
+
+# Enable gmail email send support? Default: false.
+calibre_optional_gmail: false
+
+# Enable goodreads author support? Default: false.
+calibre_optional_goodreads: false
+
+# Enable LDAP support? Default: false.
+calibre_optional_ldap: false
+
+# Enable OAuth support? Default: false.
+calibre_optional_oauth: false
+
+# Enable metadata extraction support? Default: false.
+calibre_optional_metadata: false
+
+# Enable comics metadata extraction support? Default: false.
+calibre_optional_comics: false
+
+# Enable Kobo reader sync support? Default: false.
+calibre_optional_kobo: false
+
+# Library location containing ebooks and calibre/calibre-web databases.
+# Default: '/data/library'.
+calibre_library: '/data/library'
+
+# Calibre metadata.db database to use for library. This will be copied to the
+# root location at calibre_library if not present. If calibre_metadata_database
+# is empty, a template database is copied and used instead. Default: ''.
+calibre_metadata_database: ''
+
+# Calibre-Web app.db database to use for library. This will be copied to the
+# root location at calibre_library if not present. If calibre_web_app_database
+# is empty, a template database is copied and used instead. Default: ''.
+calibre_web_app_database: ''
+
+###############################################################################
+# Calibre Web Server Settings
+###############################################################################
+# Configuration for the calibre-web web service.
+#
+# Changing settings may not be immediately reflected in the WebUI until the web
+# cache expires, but will be immediately active.
+
+# Calibre-Web root user. This user will automatically be created and have root.
+calibre_root_name:     'admin'
+calibre_root_email:    ''
+calibre_root_password: 'admin123'
+
+# Server listening port. Use 443 if SSL is enabled. Default: 8083.
+calibre_server_port: 8083
+
+# SSL public certificate location. Empty disables SSL. Default: Empty.
+calibre_server_ssl_cert: ''
+
+# SSL private certificate location. Empty disables SSL. Default: Empty.
+calibre_server_ssl_key: ''
+
+# Update channel. Only use nightly if there is a specific bug that is fixed.
+# Values:
+#   0: stable
+#   1: nightly
+# Default: 0.
+calibre_server_update_channel: 0
+
+# Trusted hosts for loading additional page resources (e.g. fonts, etc.)
+# In most cases does not need to be set. List of hosts (ip, dns) to trust.
+# Default: Empty.
+#
+# Reference:
+# * https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/Sources#sources
+calibre_server_trusted_hosts: []
+
+# Log level.
+# Values:
+#   10: debug
+#   20: info
+#   30: warning
+#   40: error
+# Default: 20 (info).
+calibre_server_log_level: 20
+
+# Full path to main log location. Default: '/var/log/calibre-web.log'.
+calibre_server_log_location: '/var/log/calibre/web.log'
+
+# Enable access logging. Default: False.
+calibre_server_access_log_enable: false
+
+# Full path to access log location. Default: '/var/log/calibre/access.log'
+calibre_server_access_log_location: '/var/log/calibre/access.log'
+
+# UTF-8 filesystem support. Should non-english characters in title and author
+# be preserved while saving to disk? Default: true.
+calibre_feature_convert_characters: true
+
+# Enable uploads. Default: true.
+calibre_feature_uploads: true
+
+# Allowed upload file formats (extension only). Default: calibre-web defaults.
+calibre_feature_formats:
+  - 'mp4'
+  - 'ogg'
+  - 'mobi'
+  - 'mp3'
+  - 'lit'
+  - 'flac'
+  - 'epub'
+  - 'kepub'
+  - 'pdf'
+  - 'azw3'
+  - 'rtf'
+  - 'doc'
+  - 'html'
+  - 'odt'
+  - 'cbt'
+  - 'cbz'
+  - 'fb2'
+  - 'opus'
+  - 'prc'
+  - 'm4a'
+  - 'txt'
+  - 'cbr'
+  - 'docx'
+  - 'wav'
+  - 'azw'
+  - 'djvu'
+  - 'm4b'
+
+# Enable anonymous browsing. Default: false.
+calibre_feature_anonymous_browsing: false
+
+# Enable Public Registration. Default: false.
+calibre_feature_public_registration: false
+
+# Enable Magic Link Remote Login. Default: false.
+calibre_feature_magic_link: false
+
+# Use reverse proxy authentication instead of login mechanisms. Default: false.
+calibre_feature_reverse_proxy_auth: false
+
+# Reverse proxy header name to check if using reverse proxy auth. Default: ''.
+calibre_feature_reverse_proxy_header_name: ''
+
+# Calibre E-Book Converter Settings to pass to ebook converter. The converter
+# location is automatically set by the role; no additional settings are
+# typically necessary. Default: ''.
+calibre_external_converter_settings: ''
+
+# Mail hostname. Default: 'mail.example.org'.
+calibre_mail_server: 'mail.example.org'
+
+# Mail SMTP port. Default: 25.
+calibre_mail_port: 25
+
+# Mail SSL configuration.
+# Values:
+#   0: off
+#   1: STARTTLS
+#   2: SSL/TLS
+# Default: 0
+calibre_mail_use_ssl: 0
+
+# Mail user to login as. Default: 'mail@example.com'.
+calibre_mail_login: 'mail@example.com'
+
+# Mail user password.
+# SECURITY WARNING: This is stored unencrypted in the database; use gmail with
+# oauth tokens.
+#
+# Default: 'mypassword.'
+calibre_mail_password: 'mypassword'
+
+# Mail from header. Default: 'automailer <mail@example.com>'.
+calibre_mail_from: 'automailer <mail@example.com>'
+
+# Mail attachment size limit (in Bytes). Default: 26214400 (25 MB).
+calibre_mail_size: 26214400
+
+# Mail server type.
+# Values:
+#   0: Standard E-mail.
+#   1: Gmail with Oauth2.
+# Default: 0.
+calibre_mail_server_type: 0
+
+# Mail gmail JSON authentication token. Default: '{}'.
+calibre_mail_gmail_token: '{}'
+
+###############################################################################
+# Calibre Web UI Settings
+###############################################################################
+# Configuration for general calibre-web UI.
+
+# Web page title. Default: 'Calibre-Web'.
+calibre_view_title: 'Calibre-Web'
+
+# Books to display on each page. Default: 60.
+calibre_view_books_per_page: 60
+
+# Random books to display. Default: 4.
+calibre_view_random_books: 4
+
+# Number of authors to display before hiding (0 disables). Default: 0.
+calibre_view_authors: 0
+
+# Calibre theme to use.
+# Values:
+#   0: standard theme
+#   1: caliBlur! Dark Theme
+# Default: 1.
+calibre_view_theme: 1
+
+# Regular expression for ignoring columns. Default: ''.
+calibre_view_ignore_columns: ''
+
+# Regular expression for title sorting. Default: calibre-web defaults.
+calibre_view_title_sorting: '^(A|The|An|Der|Die|Das|Den|Ein|Eine|Einen|Dem|Des|Einem|Eines)\s+'
+
+# New user default roles (automatically given to newly created users). These
+# are calculated using bitshifts. The calculated values are listed here and
+# each enabled option should be added together to generate a value to use. See
+# reference for up to date listings. Default: 0 (standard user).
+#
+# standard user:            0
+# adminstrator:             1
+# allow downloads:          2
+# allow uploads:            4
+# allow edits:              8
+# allow password change:    16
+# user is anonymous:        32
+# allow public shelf edits: 64
+# allow book deletion:      128
+# allow ebook viewer:       256
+#
+# Reference:
+# * https://github.com/janeczku/calibre-web/blob/master/cps/constants.py#L47
+calibre_new_user_default_roles: 0
+
+# Default visibilities for new users (automatically given to newly created
+# users). These are calculated using bitshifts. The calculated values are
+# listed here and each enabled option should be added together to generate a
+# value to use. See reference for up to date listings.
+# Default: 258559 (show all).
+#
+# show random in detail view: 1
+# show language selection:    2
+# show series selection:      4
+# show category selection:    8
+# show hot books:             16
+# show random books:          32
+# show author selection:      64
+# show top rated books:       128
+# show read and unread:       256
+# show recent books:          512
+# sort sidebar:               1024
+# show mature content:        2048
+# show publisher selection:   4096
+# show rating  selection:     8192
+# show file format selection: 16384
+# show archived books:        32768
+# show downloaded books:      65536
+# show books list:            131072
+#
+# Reference:
+# * https://github.com/janeczku/calibre-web/blob/master/cps/constants.py#L47
+calibre_new_user_default_visibility: 258559
+
+# Default language (locale) for new users. ISO 639-1 Two-digit code.
+# Default: 'en'.
+#
+# Reference:
+# * https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
+calibre_new_user_default_locale: 'en'
+
+# Default visible language of books for new users. ISO 639-1 Two-digit code or
+# 'all'. Default: 'all'.
+#
+# Reference:
+# * https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
+calibre_new_user_default_book_languages: 'all'
+
+###############################################################################
+# Calibre Web UI Optional Feature Settings
+###############################################################################
+# Optional features are only supported if the respective calibre_optional_*
+# feature is enabled.
+
+# Enable goodreads API. Default: false.
+calibre_feature_goodreads: false
+
+# Goodreads API Key. Default: ''.
+calibre_feature_goodreads_api_key: ''
+
+# Goodreads API Secret. Default: ''.
+calibre_feature_goodreads_api_secret: ''
+
+# Login type.
+# Values:
+#   0: standard (password).
+#   1: LDAP.
+#   2: Oauth.
+calibre_feature_login_type: 0
+
+# LDAP server host name or IP address. Default: 'example.org'.
+calibre_feature_ldap_provider_url: 'example.org'
+
+# LDAP Port. Default: 389.
+calibre_feature_ldap_port: 389
+
+# LDAP Encryption.
+# Values:
+#   0: none.
+#   1: tls.
+#   2: ssl.
+calibre_feature_ldap_encryption: 0
+
+# LDAP CA cert path (only if client cert auth). Default: ''.
+calibre_feature_ldap_cacert_path: ''
+
+# LDAP public cert path (only if client cert auth). Default: ''.
+calibre_feature_ldap_cert_path: ''
+
+# LDAP private key path (only if client cert auth). Default: ''.
+calibre_feature_ldap_key_path: ''
+
+# LDAP Authentication.
+# Values:
+#   0: anonymous.
+#   1: unathenticated.
+#   2: simple.
+# Default: 0
+calibre_feature_ldap_authentication: 0
+
+# LDAP Adminstrator Username. Default: 'cn=admin,dc=example,dc=org'.
+calibre_feature_ldap_serv_username: 'cn=admin,dc=example,dc=org'
+
+# LDAP Adminstrator Password. Default: ''.
+# SECURITY WARNING: This is stored unencrypted in the database.
+calibre_feature_ldap_serv_password: ''
+
+# LDAP Distinguished Name (DN). Default: 'dc=example,dc=org'.
+calibre_feature_ldap_dn: 'dc=example,dc=org'
+
+# LDAP User Object Filter. Default: 'uid=%s'.
+calibre_feature_ldap_user_object: 'uid=%s'
+
+# Is LDAP Server OpenLDAP? Default: true.
+calibre_feature_ldap_openldap: true
+
+# LDAP Group Object Filter (import).
+# Default: '(&(objectclass=posixGroup)(cn=%s))'.
+calibre_feature_ldap_group_object_filter: '(&(objectclass=posixGroup)(cn=%s))'
+
+# LDAP Group Name (import). Default: 'calibreweb'.
+calibre_feature_ldap_group_name: 'calibreweb'
+
+# LDAP Group Members Field (import). Default: 'memberUid'.
+calibre_feature_ldap_group_members_field: 'memberUid'
+
+# LDAP Member User Filter Detection (import). Default: '' (autodetect).
+calibre_feature_ldap_member_user_object: ''
+
+# Github Oauth Authentication.
+# SECURITY WARNING: This is stored unencrypted in the database.
+#
+# {id: str, secret: str, active: bool}
+#
+# Default: {}
+calibre_feature_github_oauth: {}
+
+# Google Oauth Authentication.
+# SECURITY WARNING: This is stored unencrypted in the database.
+#
+# {id: str, secret: str, active: bool}
+#
+# Default: {}
+calibre_feature_google_oauth: {}
+
+# Enable Kobo sync. Default: false.
+calibre_feature_kobo_sync: false
+
+# Proxy unknown requests to Kobo Store? Default: false.
+calibre_feature_kobo_proxy: false
+
+# Server External Port (for port forwarded API calls). Default: 8083
+calibre_feature_kobo_external_port: 8083

@@ -1,0 +1,42 @@
+---
+###############################################################################
+# Calibre Core
+###############################################################################
+# Calibre is a powerful and easy to use e-book manager.
+#
+# Caculate core calibre variables for installation and upgrade.
+#
+# Generates:
+#   _calibre_target: str calibre version number for release (1.5.0).
+#   _calibre_install_dir: str versioned install directory (full path).
+#   _calibre_version: str enumerate calibre version with architecture.
+#   _calibre_url_txz: str URL to download calibre release.
+#   _calibre_url_sig: str URL to download calibre release signature.
+#   _calibre_url_sha512: str URL to download calibre release checksum.
+#   _calibre_post_install: str location of postinstall calibre binary.
+#   _calibre_archive: str local tarball file with version (full path).
+#   _calibre_metadata_db_source: str source location of calibre metadata.db.
+#
+# Reference:
+# * https://calibre-ebook.com
+# * https://calibre-ebook.com/download_linux
+# * https://calibre-ebook.com/signatures/
+# * https://download.calibre-ebook.com/5.37.0/
+
+- name: 'binary core | generate target versions'
+  ansible.builtin.set_fact:
+    _calibre_target: '{{ calibre_version|default(calibre_binary_base_version) }}'
+
+- name: 'binary core | generate calibre version architecture'
+  ansible.builtin.set_fact:
+    _calibre_version:     'calibre-{{ _calibre_target }}-{{ calibre_arch_generic }}'
+    _calibre_install_dir: '{{ calibre_binary_default_install_dir }}/calibre-{{ _calibre_target }}'
+
+- name: 'binary core | generate locations'
+  ansible.builtin.set_fact:
+    _calibre_url_txz:      'https://download.calibre-ebook.com/{{ _calibre_target }}/{{ _calibre_version }}.txz'
+    _calibre_url_sig:      'https://calibre-ebook.com/signatures/{{ _calibre_version }}.txz.sig'
+    _calibre_url_sha512:   'https://calibre-ebook.com/signatures/{{ _calibre_version }}.txz.sha512'
+    _calibre_post_install: '{{ _calibre_install_dir }}/calibre_postinstall'
+    _calibre_archive:      '/tmp/{{ _calibre_target }}.txz'
+    _calibre_metadata_db_source: '{% if calibre_metadata_database|length > 0 %}{{ calibre_metadata_database }}{% else %}calibre-metadata-empty.db{% endif %}'

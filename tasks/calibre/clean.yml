@@ -1,0 +1,29 @@
+---
+###############################################################################
+# Remove Old Calibre Versions
+###############################################################################
+# Remove versioned calibre directories, excluding the currently set calibre
+# version.
+#
+# Args:
+#   _calibre_target: str live calibre version.
+#   calibre_delete_old_versions: boolean true to remove older versions.
+
+- name: 'binary clean | find existing calibre installations'
+  ansible.builtin.find:
+    paths:     '{{ calibre_binary_default_install_dir }}'
+    file_type: 'directory'
+    use_regex: true
+    patterns:
+      - '.*calibre-.*'
+    recurse:   false
+  register: _calibre_existing_installs
+
+- name: 'binary clean | remove old calibre versions'
+  ansible.builtin.file:
+    path:  '{{ item.path }}'
+    state: 'absent'
+  loop: '{{ _calibre_existing_installs.files }}'
+  when: |
+    _calibre_target != item.path.split("-", 1)[-1] and
+    calibre_delete_old_versions

@@ -1,0 +1,63 @@
+---
+###############################################################################
+# Calibre Github Download
+###############################################################################
+# Download and validate the calibre package from calibre site, using the
+# specified version.
+#
+# The public key is posted on the calibre website; download public key directly
+# from the website and use that.
+#
+# Generates:
+#   _calibre_install_stat: stat object for versioned calibre location.
+#
+# Args:
+#   _calibre_install_dir: str versioned install directory (full path).
+#   _calibre_url_txz: str URL to download calibre release.
+#   _calibre_url_sig: str URL to download calibre release signature.
+#   _calibre_url_sha512: str URL to download calibre release checksum.
+#   _calibre_archive: str local tarball file with version (full path).
+#
+# Reference:
+# * https://calibre-ebook.com/download_linux
+
+- name: 'binary download | check local versioned calibre directory'
+  ansible.builtin.stat:
+    path: '{{ _calibre_install_dir }}'
+  register: _calibre_install_stat
+
+- name: 'binary download | local calibre install not detected'
+  block:
+    - name: 'binary download | download calibre gpg release signature'
+      ansible.builtin.get_url:
+        url:  '{{ _calibre_url_sig }}'
+        dest: '{{ _calibre_archive }}.sig'
+      register: _calibre_sig
+      until: _calibre_sig is succeeded
+      retries: 5
+      delay: 2
+
+    - name: 'binary download | download calibre release checksum'
+      ansible.builtin.uri:
+        url:  '{{ _calibre_url_sha512 }}'
+        return_content: true
+      register: _calibre_sha512
+      until: _calibre_sha512 is succeeded
+      retries: 5
+      delay: 2
+
+    - name: 'binary download | download calibre'
+      ansible.builtin.get_url:
+        url:      '{{ _calibre_url_txz }}'
+        dest:     '{{ _calibre_archive }}'
+        checksum: 'sha512:{{ _calibre_sha512.content }}'
+      register: _calibre_download
+      until: _calibre_download is succeeded
+      retries: 5
+      delay: 2
+
+    - name: 'binary download | verify archive signature'
+      ansible.builtin.command: 'gpg --verify {{ _calibre_archive }}.sig {{ _calibre_archive }}'
+      changed_when: false
+
+  when: not _calibre_install_stat.stat.exists

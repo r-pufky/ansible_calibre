@@ -1,0 +1,29 @@
+---
+###############################################################################
+# Remove Old Kepubify Versions
+###############################################################################
+# Remove versioned kepubify binaries, excluding the currently set kepubify
+# version.
+#
+# Args:
+#   _kepubify_target: str live kepubify version.
+#   calibre_delete_old_versions: boolean true to remove older versions.
+
+- name: 'kepubify clean | find existing kepubify installations'
+  ansible.builtin.find:
+    paths:     '{{ kepubify_binary_default_install_dir }}'
+    file_type: 'file'
+    use_regex: true
+    patterns:
+      - '.*kepubify-.*'
+    recurse:   false
+  register: _kepubify_existing_installs
+
+- name: 'kepubify clean | remove old kepubify versions'
+  ansible.builtin.file:
+    path:  '{{ item.path }}'
+    state: 'absent'
+  loop: '{{ _kepubify_existing_installs.files }}'
+  when: |
+    _kepubify_target != item.path.split("-", 1)[-1] and
+    calibre_delete_old_versions

@@ -1,0 +1,29 @@
+---
+###############################################################################
+# Remove Old Calibre Versions
+###############################################################################
+# Remove versioned calibre directories, excluding the currently set calibre
+# version.
+#
+# Args:
+#   _calibre_web_target: str calibre-web latest version (X.X.X).
+#   calibre_delete_old_versions: boolean true to remove older versions.
+
+- name: 'web clean | find existing calibre-web installations'
+  ansible.builtin.find:
+    paths:     '{{ calibre_web_default_install_dir }}'
+    file_type: 'directory'
+    use_regex: true
+    patterns:
+      - '.*calibre_web-.*'
+    recurse:   false
+  register: _calibre_web_existing_installs
+
+- name: 'web clean | remove old calibre-web versions'
+  ansible.builtin.file:
+    path:  '{{ item.path }}'
+    state: 'absent'
+  loop: '{{ _calibre_web_existing_installs.files }}'
+  when: |
+    _calibre_web_target != item.path.split("-", 1)[-1] and
+    calibre_delete_old_versions

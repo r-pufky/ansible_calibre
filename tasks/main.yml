@@ -1,0 +1,5 @@
+---
+- ansible.builtin.include_tasks: manage_users.yml
+- ansible.builtin.include_tasks: calibre/main.yml
+- ansible.builtin.include_tasks: kepubify/main.yml
+- ansible.builtin.include_tasks: calibre_web/main.yml

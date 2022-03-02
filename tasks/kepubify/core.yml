@@ -1,0 +1,31 @@
+---
+###############################################################################
+# Kepubify Core
+###############################################################################
+# Kepubify is the fastest tool for converting EPUBs to Kobo's enhanced KEPUB
+# format for use on Kobo eReaders.
+#
+# Caculate core kepubify variables for installation and upgrade.
+#
+# Generates:
+#   _kepubify_target: str kepubify latest version (vX.X.X).
+#   _kepubify_url: str URL to download kepubify release.
+#   _kepubify_install_dir: str versioned install directory (full path).
+#
+# Reference:
+# * https://pgaskin.net/kepubify/docs/
+
+- name: 'kepubify core | get kepubify release metadata'
+  ansible.builtin.uri:
+    url: 'https://api.github.com/repos/pgaskin/kepubify/releases/latest'
+    return_content: true
+  register: _kepubify_remote_metadata
+
+- name: 'kepubify core | generate target versions'
+  ansible.builtin.set_fact:
+    _kepubify_target:    '{{ _kepubify_remote_metadata.json.tag_name }}'
+
+- name: 'kepubify core | generate calibre version architecture'
+  ansible.builtin.set_fact:
+    _kepubify_url:         'https://github.com/pgaskin/kepubify/releases/download/{{ _kepubify_target }}/kepubify-linux-64bit'
+    _kepubify_install_dir: '{{ kepubify_binary_default_install_dir }}/kepubify-{{ _kepubify_target }}'
