@@ -45,6 +45,18 @@
     mode:  '0600'
   when: not _calibre_web_app_install_stat.stat.exists
 
+# Ghostscript RCE for versions < 9.25. Enable. Debian Bullseye is 9.53.
+#
+# Reference:
+# * https://www.kb.cert.org/vuls/id/332928/
+# * https://packages.debian.org/bullseye/ghostscript
+- name: 'config | enable imagemagick pdf processing'
+  ansible.builtin.lineinfile:
+    path:     '/etc/ImageMagick-6/policy.xml'
+    regexp:   '(\s+)<policy domain="coder" rights=".*" pattern="PDF" />'
+    line:     '\1<policy domain="coder" rights="read|write" pattern="PDF" />'
+    backrefs: true
+
 - name: 'web config | set /etc/systemd/system/calibre-web.service'
   ansible.builtin.template:
     src:   'calibre-web.service.j2'

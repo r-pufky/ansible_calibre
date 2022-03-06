@@ -12,3 +12,14 @@
     name:    'calibre-web'
     state:   'restarted'
     enabled: true
+
+# On initial role application sometimes calibe-web requires a hard stop/start
+# for the interface to turn up properly, versus just 'restarted', above.
+- name: 'force restart calibre-web'
+  ansible.builtin.systemd:
+    name:    'calibre-web'
+    state:   '{{ item }}'
+    enabled: true
+  loop:
+    - 'stopped'
+    - 'started'

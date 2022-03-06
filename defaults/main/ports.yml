@@ -1,0 +1,12 @@
+---
+###############################################################################
+# Ports Configuration
+###############################################################################
+# Ports should be managed externally via an OS role.
+#
+# Reference:
+# * https://docs.ansible.com/ansible/latest/collections/community/general/ufw_module.html
+# * https://github.com/janeczku/calibre-web/wiki/Setup-Reverse-Proxy#nginx
+
+ports:
+  - {proto: 'tcp', from_ip: 'any', to_port: 8083, direction: 'in', comment: 'calibre-web WebUI'}

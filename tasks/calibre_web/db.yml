@@ -96,21 +96,21 @@
   ansible.builtin.command: '{{ _calibre_web_sqlite3 }} "{{ calibre_web_default_root_update }} name=\"{{ calibre_root_name }}\", email=\"{{ calibre_root_email }}\", password=\"{{ _calibre_root_password_hash.stdout }}\" where id=1"'
   changed_when: false
   become: true
-  notify: 'restart calibre-web'
+  notify: 'force restart calibre-web'
   no_log: true  # admin password hash
 
 - name: 'web db | set server settings'
   ansible.builtin.command: '{{ _calibre_web_server_settings_sql }}'
   changed_when: false
   become: true
-  notify: 'restart calibre-web'
+  notify: 'force restart calibre-web'
   no_log: true  # email password
 
 # Currently only github(id=1), google(id=2) are supported.
 - name: 'web db | set github oauth tokens'
   ansible.builtin.command: '{{ _calibre_web_sqlite3 }} "{{ calibre_web_default_oauth_replace }} (1, \"github\", \"{{ calibre_feature_github_oauth.id }}\", \"{{ calibre_feature_github_oauth.secret }}\", {{ calibre_feature_github_oauth.active|int }})"'
   become: true
-  notify: 'restart calibre-web'
+  notify: 'force restart calibre-web'
   no_log: true  # oauth secrets
   when: |
     calibre_feature_github_oauth|length > 0 and
@@ -119,7 +119,7 @@
 - name: 'web db | set google oauth tokens'
   ansible.builtin.command: '{{ _calibre_web_sqlite3 }} "{{ calibre_web_default_oauth_replace }} (2, \"google\", \"{{ calibre_feature_google_oauth.id }}\", \"{{ calibre_feature_google_oauth.secret }}\", {{ calibre_feature_google_oauth.active|int }})"'
   become: true
-  notify: 'restart calibre-web'
+  notify: 'force restart calibre-web'
   no_log: true  # oauth secrets
   when: |
     calibre_feature_google_oauth|length > 0 and

@@ -11,7 +11,7 @@ be run in an untrusted environment:
 Settings have been throughly documented for usage. Extensive configuration
 information is contained in:
 
-[defaults/main.yml](https://github.com/r-pufky/ansible_calibre/blob/main/defaults/main.yml).
+[defaults/main/main.yml](https://github.com/r-pufky/ansible_calibre/blob/main/defaults/main/main.yml).
 
 ## Dependencies
 N/A
