@@ -17,6 +17,14 @@ calibre_web_default_optional_feature_ldap:
   - 'libldap2-dev'
   - 'libsasl2-dev'
 
+# Large file support. Manually specify required pip requirements for supporting
+# 100MB+ files for calibre-web.
+#
+# Reference:
+# * https://github.com/janeczku/calibre-web/issues/452
+calibre_web_default_optional_feature_large_file:
+  - 'gevent'
+
 ###############################################################################
 # Default Calibre-Web Serving Directory
 ###############################################################################

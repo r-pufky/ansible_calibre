@@ -24,6 +24,6 @@
     path:  '{{ item.path }}'
     state: 'absent'
   loop: '{{ _calibre_web_existing_installs.files }}'
-  when: |
+  when: >
     _calibre_web_target != item.path.split("-", 1)[-1] and
     calibre_delete_old_versions

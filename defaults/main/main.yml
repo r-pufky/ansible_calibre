@@ -38,6 +38,14 @@ calibre_delete_old_versions: true
 # Generic architecture for platform: x86_32, x86_64
 calibre_arch_generic: 'x86_64'
 
+# Enable large (>100MB) file support. This resolves 100MB+ file support without
+# requiring gdrive to be enabled. Ensure proxy is set to allow larger files.
+# Default: true.
+#
+# Reference:
+# * https://github.com/janeczku/calibre-web/issues/452
+calibre_optional_large_file_support: true
+
 # Enable gdrive backend data support? Default: false.
 calibre_optional_gdrive: false
 

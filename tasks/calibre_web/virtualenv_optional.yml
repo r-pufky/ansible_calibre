@@ -30,6 +30,20 @@
   register: _calibre_web_venv_optional_packages
   when: enabled
 
+- name: 'web virtualenv | setup virtual environment (large file support)'
+  ansible.builtin.pip:
+    virtualenv:         '{{ _calibre_web_venv }}'
+    virtualenv_command: 'virtualenv'
+    virtualenv_python:  'python3'
+    extra_args: '--upgrade'
+    name: '{{ calibre_web_default_optional_feature_large_file }}'
+  become: true
+  become_user: '{{ calibre_user }}'
+  # Reference: https://github.com/ansible/ansible/issues/16048#issuecomment-229012509
+  vars:
+    ansible_ssh_pipelining: true
+  when: calibre_optional_large_file_support
+
 - name: 'web virtualenv | setup virtual environment ({{ header|lower }})'
   ansible.builtin.pip:
     virtualenv:         '{{ _calibre_web_venv }}'

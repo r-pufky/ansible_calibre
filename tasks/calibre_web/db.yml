@@ -112,7 +112,7 @@
   become: true
   notify: 'force restart calibre-web'
   no_log: true  # oauth secrets
-  when: |
+  when: >
     calibre_feature_github_oauth|length > 0 and
     calibre_feature_login_type == 2
 
@@ -121,6 +121,6 @@
   become: true
   notify: 'force restart calibre-web'
   no_log: true  # oauth secrets
-  when: |
+  when: >
     calibre_feature_google_oauth|length > 0 and
     calibre_feature_login_type == 2
